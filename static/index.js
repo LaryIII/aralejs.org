@@ -2,9 +2,10 @@
   seajs.config({
     base: 'http://static.alipayobjects.com/',
     alias: {
-      'popup': 'arale/popup/0.9.11/popup',
+      'popup': 'arale/popup/0.9.13/popup',
       'autocomplete': 'arale/autocomplete/1.0.0/autocomplete',
       'placeholder': 'arale/placeholder/1.0.0/placeholder',
+      'fixed': 'arale/fixed/1.0.0/fixed',
       'afc163': '/sea-modules/afc163'
     },
     preload: ['seajs/plugin-combo'],
@@ -12,12 +13,12 @@
   });
 
   seajs.use(
-    ['$', 'popup', 'autocomplete', 'placeholder', 'afc163/word-color/1.0.0/word-color', 'http://aralejs.org/package.js'],
-    function($, Popup, Autocomplete, Placeholder, wordColor, araleModules) {
+    ['$', 'popup', 'autocomplete', 'placeholder', 'fixed', 'afc163/word-color/1.0.0/word-color', 'http://aralejs.org/package.js'],
+    function($, Popup, Autocomplete, Placeholder, Fixed, wordColor, araleModules) {
 
       var modules;
 
-      insertAraleModules(araleModules);
+      insertAraleModules(araleModules);      
 
       // 搜索组件自动完成
       var ac = new Autocomplete({
@@ -34,7 +35,10 @@
           var result = [];
           $.each(data, function(index, value) {
             var temp = value.root + '.' + value.name;
+            value.description = value.description || '';
             if (temp.indexOf(query) > -1) {
+              result.unshift({matchKey: temp, url: value.homepage});
+            } else if (value.description.indexOf(query) > -1) {
               result.push({matchKey: temp, url: value.homepage});
             }
           });
@@ -53,13 +57,8 @@
           location.href = item.url;
         }
       });
-    
-        /*
-      $('#search').focus().on('keyup', function(e) {
-        if (e.keyCode !== 38 && e.keyCode !== 40) {
-          ac.set('selectedIndex', 0);
-        }
-      });*/
+
+      Fixed('#document-wrapper');
 
       seajs.use(['http://aralejs.alipay.im/package.js'], function(alipayModules) {
         if (!alipayModules) {
@@ -72,41 +71,44 @@
       });
 
       function insertAraleModules(data) {
+        if ($('#module-wrapper').length === 0) {
+          return;
+        }
+
         // 按字母顺序排序
         data = data.sort(function(a, b) {
           return a.name[0] > b.name[0];
         });
 
-        if ($('#module-wrapper').length === 0) {
-          return;
-        }
         $('.modules').empty();
         for(var i=0; i<data.length; i++) {
           var item = $('<a class="module" target="_blank" href="#"></a>');
           var module = data[i];
           item.html(module.name)
           .attr('href', '/' + module.name + '/')
+          .data('name', module.name)
           .data('description', module.description)
           .data('version', module.version);
           if (module.root === 'gallery') {
             item.attr('href', module.homepage);
             $('.modules-gallery').append(item).prev().show();
           } else {
+            item.append('<img alt="Build Status" src="https://secure.travis-ci.org/aralejs/' + item.html() + '.png">');
             $('.modules-' + module.tag).append(item).prev().show();
           }
         }
-        cardPopup('.module');        
+        cardPopup('.module');
         color('.module');
       }
 
       function insertAlipayModules(data) {
-        data = data.sort(function(a, b) {
-          return a.name[0] > b.name[0];
-        });
-
         if ($('#module-wrapper').length === 0) {
           return;
         }
+
+        data = data.sort(function(a, b) {
+          return a.name[0] > b.name[0];
+        });
 
         for(var i=0; i<data.length; i++) {
           var item = $('<a class="module" target="_blank" href="#"></a>');
@@ -128,15 +130,18 @@
           element: '#card',
           trigger: items,
           effect: 'fade',
+          duration: 100,
+          delay: -1,
           align: {
-            baseXY: [0, -2],
+            baseXY: [0, -5],
             selfXY: [0, '100%']
           }
         });
         popup.on('before:show', function() {
-          $('#card .card-name').html(this.activeTrigger.html());
-          $('#card .card-description').html(this.activeTrigger.data('description') || '');
-          $('#card .card-version').html(this.activeTrigger.data('version') || '');
+          var at = $(this.activeTrigger);
+          $('#card .card-name').html(at.data('name'));
+          $('#card .card-description').html(at.data('description') || '');
+          $('#card .card-version').html(at.data('version') || '');
         });
       }
 
