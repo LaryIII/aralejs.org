@@ -26,17 +26,18 @@ a {
 }
 .main-block {
     float: left;
-    display: inline;
 }
 #module-wrapper h2 {
     display: none;
 }
 #document-wrapper {
     width: 290px;
+    margin-right:-290px;
 }
 #module-wrapper, #doc-wrapper {
     max-width: 720px;
     *width: 720px;
+    margin-left:290px;    
 }
 #doc-wrapper h1 {
     font-family: "Marcellus",sans-serif; 
@@ -74,7 +75,7 @@ a {
     margin: 0;
     padding: 0;
     line-height: 1.6;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 #document-wrapper h2, #module-wrapper h2 {
@@ -120,10 +121,22 @@ a {
     width: 115px;
     border-left: 3px solid #B4D0EE;
     font-family: tahoma;
+    overflow: hidden;
+    position: relative;
 }
 .module:hover {
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
     color: #6C97C2;    
+}
+
+.module img {
+    height: 13px;
+    left: 74px;
+    position: absolute;
+    top: -20px;
+    transform: rotate(45deg);
+    width: 80px;
+    opacity: 0.7;
 }
 
 #card {

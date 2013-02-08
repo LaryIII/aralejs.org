@@ -1,6 +1,7 @@
 # 开发规范
 
-- order: 5
+- order: 9
+- category: arale
 
 ---
 

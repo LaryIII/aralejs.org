@@ -1,6 +1,7 @@
-# Online Status
+# 模块线上状态
 
-- order: 9
+- order: 8
+- category: arale
 
 --------------
 
@@ -42,6 +43,7 @@ table .status {width: 80px; cursor: pointer; padding: 0px 10px;}
 table .status:hover {background-color: #fff;}
 table .status span{cursor:pointer;}
 table .version{width: 180px;}
+#content table .name a {color: #6381A6;}
 #card{width:auto;}
 .face {
     font-weight: bold;
@@ -134,7 +136,7 @@ seajs.use(['$', 'popup'], function($, Popup){
     
     function createTable(data, root) {
         var table = $('<table><tr><th class="name">组件名</th><th class="version">版本</th><th class="status J-alipayStatus">开发环境</th><th class="status J-alipayStatus">测试环境</th><th class="status">线上</th></tr></table>').appendTo('#status-' + root);
-    
+
         $.each(data, function(key, value){
             var name = key;
     
@@ -148,9 +150,18 @@ seajs.use(['$', 'popup'], function($, Popup){
                 s.push('<option value="' + version + '" data-files="' + files.join(';') + '">' + version + '</option>');
             });
             s.push('</select>');
+            
+            var keylink = '';
+            if (root === 'arale') {
+                keylink = '<a href="/' + key + '/">' + key + '</a>';
+            } else if (root === 'alipay') {
+                keylink = '<a href="http://aralejs.alipay.im/' + key + '/">' + key + '</a>';
+            } else {
+                keylink = key;
+            }
     
-            var tr = $('<tr data-name="' +  key + '" data-root="' + root + '">' +
-                '<td class="name"><span class="face">☺</span> ' + key + '</td>' +
+            var tr = $('<tr data-name="' +  key + '" data-root="' + root + '" id="' + root + '-' + key + '">' +
+                '<td class="name"><span class="face">☺</span> ' + keylink + '</td>' +
                 '<td class="version">' + s.join('') + '</td>' +
                 '<td class="dev status J-alipayStatus" data-status="dev"></td>' +
                 '<td class="test status J-alipayStatus" data-status="test"></td>' +
@@ -189,6 +200,18 @@ seajs.use(['$', 'popup'], function($, Popup){
         $('#status-' + root).on('change', 'select', function() {
             testStatus(this);
         });
+        
+        // 为了让 aralejs.org/docs/online-status.html#arale.dialog
+        // 这样的链接锚点能够正确的指向
+        if (location.hash !== '' && $(location.hash)[0]
+            && $(location.hash).attr('highlight') !== 'true') {
+            location.href = location.href;
+            $(location.hash).css({
+                'background-color': '#CDEDAC',
+                'font-weight': 'bold'
+            });
+            $(location.hash).attr('highlight', 'true');
+        }
     }
 
     // 检测某个组件的版本在各环境是否存在
